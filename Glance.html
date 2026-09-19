@@ -32,10 +32,11 @@
       --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--fg); }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--fg); overflow-x: hidden; }
     body { font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
     button { font-family: inherit; cursor: pointer; }
-    .wrap { max-width: 64rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .wrap { max-width: 64rem; width: 100%; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; overflow-x: hidden; }
+    header, .stack, .grid, .metric, .minis, .facts-grid { min-width: 0; max-width: 100%; }
     header { display: flex; flex-wrap: wrap; gap: 1.25rem; justify-content: space-between; align-items: flex-end; }
     .eyebrow { margin: 0; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--subtle); }
     h1 { margin: 0.25rem 0 0; font-size: 2.25rem; font-weight: 500; letter-spacing: -0.03em; }
@@ -104,6 +105,8 @@
     @media (max-width: 639px) {
       .machine { text-align: left; }
       .wrap { padding: 1.5rem 1rem 4rem; }
+      .well svg { width: 4.25rem; height: 3.5rem; }
+      .well .num { font-size: 1.35rem; }
     }
   </style>
 </head>
