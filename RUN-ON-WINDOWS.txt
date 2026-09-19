@@ -1,0 +1,13 @@
+Glance on Windows
+=================
+
+Double-click  Glance.html
+
+That opens the hardware monitor in your browser.
+No install. No extra programs.
+
+You can also double-click  Start Glance.bat
+if you want a shortcut that does the same thing.
+
+If you downloaded a ZIP from GitHub, unzip the
+whole folder first, then open Glance.html inside it.

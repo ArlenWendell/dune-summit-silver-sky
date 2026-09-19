@@ -165,6 +165,20 @@ export function Dashboard() {
           <DetailPanel id={selected} samples={samples} unit={tempUnit} />
           <BrowserFactsPanel facts={facts} />
 
+          <a
+            href="/Glance.html"
+            download="Glance.html"
+            className="flex items-center justify-between gap-4 rounded-xl bg-surface px-5 py-4 text-left shadow-[var(--shadow-border)] transition-[transform] duration-150 ease-out active:scale-[0.99]"
+          >
+            <span>
+              <span className="block text-sm font-medium">On your Windows PC</span>
+              <span className="mt-1 block text-sm text-muted text-pretty">
+                Download Glance.html, then double-click it. No install.
+              </span>
+            </span>
+            <span className="shrink-0 text-sm font-medium text-fg">Download</span>
+          </a>
+
           <p className="px-1 text-xs text-subtle text-pretty">
             Live numbers above are a realistic desktop demo so you can see the layout. A webpage
             cannot read your real CPU or GPU sensors — use the workload chips to try idle, gaming,

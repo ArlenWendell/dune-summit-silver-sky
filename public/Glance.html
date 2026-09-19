@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0c0e" />
+  <title>Glance</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' rx='8' fill='%2314161a'/%3E%3Cpath d='M6 18c3-7 6-10 10-10s7 3 10 10' stroke='%23d5dae3' stroke-width='2.2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='21' r='2.2' fill='%237dba9a'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0c0e;
+      --surface: #14161a;
+      --raised: #1c1f26;
+      --fg: #eceef2;
+      --muted: #8b909a;
+      --subtle: #6a707a;
+      --line: rgb(236 238 242 / 0.1);
+      --accent: #d5dae3;
+      --accent-fg: #0b0c0e;
+      --display: #ecebe6;
+      --ink: #141414;
+      --warm: #c9a000;
+      --warm-dim: rgb(201 160 0 / 0.2);
+      --hot: #d61f1f;
+      --hot-dim: rgb(214 31 31 / 0.16);
+      --track: rgb(20 20 20 / 0.16);
+      --shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
+      --sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--fg); }
+    body { font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; cursor: pointer; }
+    .wrap { max-width: 64rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    header { display: flex; flex-wrap: wrap; gap: 1.25rem; justify-content: space-between; align-items: flex-end; }
+    .eyebrow { margin: 0; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--subtle); }
+    h1 { margin: 0.25rem 0 0; font-size: 2.25rem; font-weight: 500; letter-spacing: -0.03em; }
+    .lede { margin: 0.5rem 0 0; max-width: 28rem; color: var(--muted); font-size: 0.9rem; }
+    .machine { font-size: 0.9rem; color: var(--muted); text-align: right; }
+    .machine strong { color: var(--fg); font-weight: 500; }
+    .unit-group, .chip, .pause, .pill { border: 0; }
+    .unit-group { display: inline-flex; background: var(--raised); border-radius: 999px; padding: 0.2rem; box-shadow: var(--shadow); }
+    .unit-group button { min-height: 2.25rem; min-width: 2.75rem; border-radius: 999px; padding: 0 0.75rem; background: transparent; color: var(--muted); font-size: 0.875rem; font-weight: 500; }
+    .unit-group button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+    .row { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip, .pause { min-height: 2.75rem; border-radius: 999px; padding: 0 1rem; font-size: 0.875rem; font-weight: 500; background: var(--raised); color: var(--muted); box-shadow: var(--shadow); }
+    .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+    .pause { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--fg); }
+    .stack { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+    .banner, .panel, .mini, .facts { background: var(--surface); border-radius: 0.75rem; box-shadow: var(--shadow); }
+    .banner { padding: 1rem 1.25rem; }
+    .pill { display: inline-flex; border-radius: 999px; padding: 0.25rem 0.65rem; font-size: 0.75rem; font-weight: 500; }
+    .pill.ok { background: var(--display); color: var(--ink); }
+    .pill.warm { background: var(--warm-dim); color: var(--warm); }
+    .pill.hot { background: var(--hot-dim); color: var(--hot); }
+    .banner h2 { margin: 0.75rem 0 0; font-size: 1.35rem; font-weight: 500; letter-spacing: -0.02em; }
+    .banner p.body { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.9rem; max-width: 40rem; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+    .metric { width: 100%; text-align: left; background: var(--surface); border: 0; border-radius: 0.75rem; padding: 0.5rem; box-shadow: var(--shadow); color: inherit; }
+    .metric[aria-pressed="true"] { box-shadow: 0 0 0 1px rgb(213 218 227 / 0.45); }
+    .well { display: flex; align-items: center; gap: 0.25rem; min-height: 7rem; border-radius: 0.5rem; background: var(--display); color: var(--ink); padding: 0.75rem; }
+    .well svg { width: 5.5rem; height: 4.5rem; flex-shrink: 0; }
+    .well .copy { min-width: 0; flex: 1; }
+    .well .top { display: flex; justify-content: space-between; gap: 0.5rem; }
+    .well .title { margin: 0; font-size: 0.875rem; font-weight: 500; color: rgb(20 20 20 / 0.55); }
+    .well .status { font-size: 0.75rem; font-weight: 500; }
+    .well .num { margin: 0.35rem 0 0; font-family: var(--mono); font-size: 1.5rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1; }
+    .well .num span { margin-left: 0.2rem; font-size: 0.875rem; opacity: 0.7; }
+    .well .sub { margin: 0.5rem 0 0; font-size: 0.75rem; color: rgb(20 20 20 / 0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ink { color: var(--ink); }
+    .warm { color: var(--warm); }
+    .hot { color: var(--hot); }
+    .minis { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .mini { padding: 0.75rem 1rem; }
+    .mini .k { margin: 0; font-size: 0.75rem; color: var(--subtle); }
+    .mini .v { margin: 0.25rem 0 0; font-family: var(--mono); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+    .panel { padding: 1.25rem; }
+    .panel h3 { margin: 0; font-size: 1.125rem; font-weight: 500; }
+    .kicker { margin: 0; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--subtle); }
+    .spark { margin-top: 1rem; background: var(--display); border-radius: 0.5rem; padding: 0.75rem; }
+    .spark svg { display: block; width: 100%; height: 6rem; }
+    .why { margin: 1rem 0 0; color: var(--muted); font-size: 0.9rem; max-width: 40rem; }
+    .kv { display: flex; justify-content: space-between; gap: 1rem; padding: 0.65rem 0; border-top: 1px solid var(--line); font-size: 0.875rem; }
+    .kv:first-of-type { border-top: 0; }
+    .kv .k { color: var(--muted); }
+    .kv .v { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+    .facts { padding: 1.25rem; }
+    .facts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem; }
+    .fact { background: var(--raised); border-radius: 0.5rem; padding: 0.75rem; }
+    .fact .k { margin: 0; font-size: 0.75rem; color: var(--subtle); }
+    .fact .v { margin: 0.25rem 0 0; font-size: 0.875rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .note { margin: 0; padding: 0 0.25rem; font-size: 0.75rem; color: var(--subtle); }
+    @media (min-width: 640px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .minis { grid-template-columns: 1fr 1fr 1fr; }
+      .facts-grid { grid-template-columns: 1fr 1fr 1fr; }
+      h1 { font-size: 2.5rem; }
+    }
+    @media (max-width: 639px) {
+      .machine { text-align: left; }
+      .wrap { padding: 1.5rem 1rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"></div>
+  <script>
+    const MACHINE = {
+      name: "Gaming desktop",
+      cpu: "Intel Core i9-13900K",
+      cpuDetail: "24 cores · 32 threads",
+      gpu: "GeForce RTX 4090",
+      gpuDetail: "24 GB GDDR6X",
+      ram: "32 GB DDR5",
+      storage: "1 TB NVMe SSD",
+    };
+    const WORKLOADS = [
+      { id: "rest", label: "Resting", hint: "Desktop idle" },
+      { id: "everyday", label: "Everyday", hint: "Browser and apps" },
+      { id: "gaming", label: "Gaming", hint: "Full-screen game" },
+      { id: "stress", label: "Stress", hint: "All cores maxed" },
+    ];
+    const TARGETS = {
+      rest: { cpuLoad: 6, cpuTemp: 42, cpuPower: 28, gpuLoad: 2, gpuTemp: 36, gpuVram: 8, gpuFan: 30, gpuPower: 18, ram: 28, diskUsed: 64, diskActivity: 1, netDown: 0.2, netUp: 0.05 },
+      everyday: { cpuLoad: 18, cpuTemp: 56, cpuPower: 65, gpuLoad: 12, gpuTemp: 48, gpuVram: 22, gpuFan: 35, gpuPower: 40, ram: 46, diskUsed: 64, diskActivity: 8, netDown: 4.5, netUp: 0.4 },
+      gaming: { cpuLoad: 44, cpuTemp: 72, cpuPower: 145, gpuLoad: 97, gpuTemp: 71, gpuVram: 78, gpuFan: 68, gpuPower: 380, ram: 62, diskUsed: 64, diskActivity: 14, netDown: 2.2, netUp: 0.3 },
+      stress: { cpuLoad: 99, cpuTemp: 91, cpuPower: 250, gpuLoad: 99, gpuTemp: 86, gpuVram: 94, gpuFan: 92, gpuPower: 445, ram: 88, diskUsed: 64, diskActivity: 55, netDown: 12, netUp: 3.5 },
+    };
+
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    const step = (cur, target, chase, jitter) => cur + (target - cur) * chase + (Math.random() - 0.5) * jitter;
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&", "<": "<", ">": ">", '"': """, "'": "&#39;" }[c]));
+
+    function seed(w) { return { t: Date.now(), ...TARGETS[w] }; }
+    function nextSample(prev, w) {
+      const g = TARGETS[w];
+      return {
+        t: Date.now(),
+        cpuLoad: clamp(step(prev.cpuLoad, g.cpuLoad, 0.18, 3.2), 0, 100),
+        cpuTemp: clamp(step(prev.cpuTemp, g.cpuTemp, 0.12, 0.8), 28, 100),
+        cpuPower: clamp(step(prev.cpuPower, g.cpuPower, 0.16, 6), 8, 280),
+        gpuLoad: clamp(step(prev.gpuLoad, g.gpuLoad, 0.22, 2.4), 0, 100),
+        gpuTemp: clamp(step(prev.gpuTemp, g.gpuTemp, 0.12, 0.7), 28, 100),
+        gpuVram: clamp(step(prev.gpuVram, g.gpuVram, 0.1, 1.2), 4, 99),
+        gpuFan: clamp(step(prev.gpuFan, g.gpuFan, 0.1, 1.5), 0, 100),
+        gpuPower: clamp(step(prev.gpuPower, g.gpuPower, 0.16, 10), 10, 480),
+        ram: clamp(step(prev.ram, g.ram, 0.08, 0.6), 12, 99),
+        diskUsed: clamp(step(prev.diskUsed, g.diskUsed, 0.02, 0.05), 10, 99),
+        diskActivity: clamp(step(prev.diskActivity, g.diskActivity, 0.25, 4), 0, 100),
+        netDown: clamp(step(prev.netDown, g.netDown, 0.2, 0.6), 0, 80),
+        netUp: clamp(step(prev.netUp, g.netUp, 0.2, 0.15), 0, 40),
+      };
+    }
+
+    const band = (v, warm, hot) => (v >= hot ? "hot" : v >= warm ? "warm" : "ok");
+    const cpuHealth = (s) => band(s.cpuTemp, 80, 90);
+    const gpuHealth = (s) => band(s.gpuTemp, 80, 88);
+    const ramHealth = (s) => band(s.ram, 85, 93);
+    const diskHealth = (s) => band(s.diskUsed, 88, 95);
+    const worse = (a, b) => ({ ok: 0, warm: 1, hot: 2 }[a] >= { ok: 0, warm: 1, hot: 2 }[b] ? a : b);
+    const overall = (s) => worse(cpuHealth(s), worse(gpuHealth(s), worse(ramHealth(s), diskHealth(s))));
+    const healthLabel = (h) => (h === "hot" ? "Critical" : h === "warm" ? "Threshold" : "Normal");
+    const fromC = (c, unit) => (unit === "F" ? c * 1.8 + 32 : c);
+    const fmtTemp = (c, unit) => Math.round(fromC(c, unit)) + "°" + unit;
+
+    function overallCopy(s) {
+      const h = overall(s);
+      if (h === "hot") {
+        if (s.cpuTemp >= 90 && s.gpuTemp >= 88) return { title: "Processor and graphics are running hot", body: "Both chips are past a comfortable range. Check that fans and the radiator are spinning, and that vents are not blocked." };
+        if (s.cpuTemp >= 90) return { title: "The processor is running hot", body: "A short spike during a heavy task is normal. If it stays this hot while you are just browsing, cooling needs a look." };
+        if (s.gpuTemp >= 88) return { title: "The graphics card is running hot", body: "High load in a game is expected. Heat this high for a long stretch is when you check case airflow." };
+        if (s.ram >= 93) return { title: "Memory is almost full", body: "Windows will start swapping to disk and everything will feel sticky. Close heavy apps or add RAM." };
+        return { title: "Storage is nearly full", body: "Drives this packed get slow and updates can fail. Free some space on the system disk." };
+      }
+      if (h === "warm") return { title: "A few things are warm — still fine", body: "Nothing is in the danger zone. This is typical during a game or a heavy export." };
+      return { title: "Everything looks fine", body: "Temps are comfortable and nothing is running out of room." };
+    }
+
+    const CX = 50, CY = 46, R = 36;
+    function pt(deg) {
+      const rad = (deg * Math.PI) / 180;
+      return { x: CX + R * Math.cos(rad), y: CY + R * Math.sin(rad) };
+    }
+    const GS = pt(135), GE = pt(45);
+    const GD = `M ${GS.x.toFixed(2)} ${GS.y.toFixed(2)} A ${R} ${R} 0 1 1 ${GE.x.toFixed(2)} ${GE.y.toFixed(2)}`;
+
+    function gauge(value, health) {
+      const pct = Math.max(0, Math.min(1, value / 100));
+      const color = health === "hot" ? "var(--hot)" : health === "warm" ? "var(--warm)" : "var(--ink)";
+      return `<svg viewBox="0 0 100 78" aria-hidden="true">
+        <path d="${GD}" fill="none" stroke="var(--track)" stroke-width="7" stroke-linecap="round"/>
+        <path d="${GD}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round" pathLength="100" stroke-dasharray="${(pct * 100).toFixed(1)} 100"/>
+      </svg>`;
+    }
+
+    function sparkline(values, health) {
+      const w = 240, h = 64;
+      const min = Math.min(...values, 0);
+      const max = Math.max(...values, 1);
+      const span = Math.max(max - min, 1);
+      const pts = values.map((v, i) => {
+        const x = values.length <= 1 ? 0 : (i / (values.length - 1)) * w;
+        const y = h - ((v - min) / span) * (h - 6) - 3;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+      const stroke = health === "hot" ? "var(--hot)" : health === "warm" ? "var(--warm)" : "var(--ink)";
+      return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+        <polyline fill="none" stroke="${stroke}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${pts}" vector-effect="non-scaling-stroke"/>
+      </svg>`;
+    }
+
+    function gpuName() {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        if (!gl) return null;
+        const ext = gl.getExtension("WEBGL_debug_renderer_info");
+        if (!ext) return gl.getParameter(gl.RENDERER);
+        return gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+      } catch { return null; }
+    }
+    function platformLabel() {
+      const ua = navigator.userAgent;
+      if (/Windows NT/i.test(ua)) return "Windows";
+      if (/Mac OS X/i.test(ua)) return "macOS";
+      if (/Android/i.test(ua)) return "Android";
+      if (/iPhone|iPad/i.test(ua)) return "iOS";
+      if (/Linux/i.test(ua)) return "Linux";
+      return navigator.platform || "Unknown";
+    }
+
+    const state = {
+      workload: "everyday",
+      paused: false,
+      selected: "cpu",
+      samples: [seed("everyday")],
+      tempUnit: localStorage.getItem("glance-temp-unit") === "C" ? "C" : "F",
+      facts: null,
+    };
+
+    function setUnit(unit) {
+      state.tempUnit = unit;
+      localStorage.setItem("glance-temp-unit", unit);
+      render();
+    }
+
+    function card(id, title, primary, unit, secondary, value, health) {
+      const tone = health === "hot" ? "hot" : health === "warm" ? "warm" : "ink";
+      return `<button type="button" class="metric" data-metric="${id}" aria-pressed="${state.selected === id}">
+        <div class="well">
+          ${gauge(value, health)}
+          <div class="copy">
+            <div class="top">
+              <p class="title">${title}</p>
+              <span class="status ${tone}">${healthLabel(health)}</span>
+            </div>
+            <p class="num ${tone}">${esc(primary)}<span>${esc(unit)}</span></p>
+            <p class="sub">${esc(secondary)}</p>
+          </div>
+        </div>
+      </button>`;
+    }
+
+    function details(s, unit) {
+      const id = state.selected;
+      const seriesMap = { cpu: (x) => x.cpuTemp, gpu: (x) => x.gpuTemp, ram: (x) => x.ram, disk: (x) => x.diskUsed };
+      const healthMap = { cpu: cpuHealth, gpu: gpuHealth, ram: ramHealth, disk: diskHealth };
+      const titles = { cpu: "Processor", gpu: "Graphics card", ram: "Memory", disk: "Storage" };
+      const why = {
+        cpu: `Load is how busy the chip is. Heat is what actually matters. A game at 40–60% load and under ${fmtTemp(80, unit)} is healthy. Constant max heat while the desktop is idle is not.`,
+        gpu: `High load during a game is the whole point of the card. Watch temperature instead. Most big NVIDIA cards are happy around ${fmtTemp(65, unit)}–${fmtTemp(75, unit)}. Sitting near ${fmtTemp(85, unit)} for a long stretch is when you check case airflow.`,
+        ram: "This is how full your RAM is. When it stays near the top, Windows starts using the disk as fake memory and the PC feels sticky. Closing browsers and games frees it instantly.",
+        disk: "This is how full the drive is, not how fast it is. Past about 90% full, Windows updates get flaky and everything hitchy. Activity (the smaller number) is just how hard it is reading and writing right now.",
+      };
+      const health = healthMap[id](s);
+      const tone = health === "hot" ? "hot" : health === "warm" ? "warm" : "";
+      const rows = {
+        cpu: [["Chip", MACHINE.cpu], ["Layout", MACHINE.cpuDetail], ["Load", s.cpuLoad.toFixed(0) + "%"], ["Temperature", fmtTemp(s.cpuTemp, unit), tone], ["Power", s.cpuPower.toFixed(0) + " W"]],
+        gpu: [["Card", MACHINE.gpu], ["Memory size", MACHINE.gpuDetail], ["Load", s.gpuLoad.toFixed(0) + "%"], ["Temperature", fmtTemp(s.gpuTemp, unit), tone], ["Video memory", s.gpuVram.toFixed(0) + "% used"], ["Fan", s.gpuFan.toFixed(0) + "%"], ["Power", s.gpuPower.toFixed(0) + " W"]],
+        ram: [["Installed", MACHINE.ram], ["In use", s.ram.toFixed(0) + "%", tone], ["Headroom", (100 - s.ram).toFixed(0) + "% free"]],
+        disk: [["Drive", MACHINE.storage], ["Space used", s.diskUsed.toFixed(0) + "%", tone], ["Activity right now", s.diskActivity.toFixed(0) + "%"]],
+      };
+      const axis = id === "cpu" || id === "gpu" ? "Temperature over time" : "Use over time";
+      return `<section class="panel">
+        <p class="kicker">Last minute</p>
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:0.75rem;align-items:flex-end">
+          <h3>${titles[id]}</h3>
+          <p class="kicker ${tone}" style="text-transform:none;letter-spacing:0">${axis}</p>
+        </div>
+        <div class="spark">${sparkline(state.samples.map(seriesMap[id]), health)}</div>
+        <p class="why">${why[id]}</p>
+        <div style="margin-top:1.25rem">
+          ${rows[id].map(([k, v, t]) => `<div class="kv"><span class="k">${esc(k)}</span><span class="v ${t || ""}">${esc(v)}</span></div>`).join("")}
+        </div>
+      </section>`;
+    }
+
+    function factsPanel() {
+      const f = state.facts;
+      const cell = (k, v) => `<div class="fact"><p class="k">${esc(k)}</p><p class="v" title="${esc(v)}">${esc(v)}</p></div>`;
+      let grid = `<p class="why">Reading this device…</p>`;
+      if (f) {
+        const items = [
+          cell("System", f.platform),
+          cell("CPU threads", f.cores != null ? String(f.cores) : "Not reported"),
+          cell("Device RAM hint", f.deviceMemoryGb != null ? "About " + f.deviceMemoryGb + " GB" : "Not reported"),
+          cell("Screen", f.screen),
+          cell("Graphics (browser)", f.gpu || "Not reported"),
+          cell("Network", f.connection ? f.connection + (f.downlink != null ? " · ~" + f.downlink + " Mbps" : "") : "Not reported"),
+        ];
+        if (f.batteryPct != null) items.push(cell("Battery", f.batteryPct + "%" + (f.batteryCharging ? " · charging" : "")));
+        if (f.heapUsedMb != null) items.push(cell("Page memory", f.heapUsedMb + " / " + f.heapLimitMb + " MB"));
+        grid = `<div class="facts-grid">${items.join("")}</div>`;
+      }
+      return `<section class="facts">
+        <h3>This browser</h3>
+        <p class="why">Websites are not allowed to read fan speeds or chip temperatures. These are the few hardware facts the page can actually see on this device.</p>
+        ${grid}
+      </section>`;
+    }
+
+    function render() {
+      const s = state.samples[state.samples.length - 1];
+      const unit = state.tempUnit;
+      const h = overall(s);
+      const copy = overallCopy(s);
+      const chip = h === "hot" ? "hot" : h === "warm" ? "warm" : "ok";
+      const chipLabel = h === "hot" ? "Critical" : h === "warm" ? "Threshold" : "All good";
+      const totalW = s.cpuPower + s.gpuPower;
+      document.getElementById("app").innerHTML = `
+        <header>
+          <div>
+            <p class="eyebrow">Hardware</p>
+            <h1>Glance</h1>
+            <p class="lede">The few numbers that matter. Not two hundred sensors.</p>
+          </div>
+          <div>
+            <div class="machine">
+              <strong>${esc(MACHINE.name)}</strong><br/>
+              ${esc(MACHINE.cpu)}<br/>
+              ${esc(MACHINE.gpu)}
+            </div>
+            <div class="unit-group" role="group" aria-label="Temperature unit" style="margin-top:0.75rem">
+              <button type="button" data-unit="F" aria-pressed="${unit === "F"}">°F</button>
+              <button type="button" data-unit="C" aria-pressed="${unit === "C"}">°C</button>
+            </div>
+          </div>
+        </header>
+        <div class="row">
+          <div class="chips" role="tablist" aria-label="Workload">
+            ${WORKLOADS.map((w) => `<button type="button" class="chip" data-workload="${w.id}" title="${esc(w.hint)}" aria-pressed="${state.workload === w.id}">${w.label}</button>`).join("")}
+          </div>
+          <button type="button" class="pause" data-pause>
+            ${state.paused
+              ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 20 12 6 20 6 4"/></svg> Resume`
+              : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause`}
+          </button>
+        </div>
+        <div class="stack">
+          <section class="banner" aria-live="polite">
+            <p class="pill ${chip}">${chipLabel}</p>
+            <h2>${esc(copy.title)}</h2>
+            <p class="body">${esc(copy.body)}</p>
+          </section>
+          <div class="grid">
+            ${card("cpu", "Processor", String(Math.round(fromC(s.cpuTemp, unit))), "°" + unit, s.cpuLoad.toFixed(0) + "% busy · " + s.cpuPower.toFixed(0) + " W", s.cpuTemp, cpuHealth(s))}
+            ${card("gpu", "Graphics", String(Math.round(fromC(s.gpuTemp, unit))), "°" + unit, s.gpuLoad.toFixed(0) + "% busy · " + s.gpuVram.toFixed(0) + "% VRAM", s.gpuTemp, gpuHealth(s))}
+            ${card("ram", "Memory", s.ram.toFixed(0), "%", MACHINE.ram + " installed", s.ram, ramHealth(s))}
+            ${card("disk", "Storage", s.diskUsed.toFixed(0), "% full", s.diskActivity.toFixed(0) + "% activity · " + MACHINE.storage, s.diskUsed, diskHealth(s))}
+          </div>
+          <div class="minis">
+            <div class="mini"><p class="k">Network down</p><p class="v">${s.netDown.toFixed(1)} MB/s</p></div>
+            <div class="mini"><p class="k">Network up</p><p class="v">${s.netUp.toFixed(1)} MB/s</p></div>
+            <div class="mini"><p class="k">Board power</p><p class="v">${totalW.toFixed(0)} W</p></div>
+          </div>
+          ${details(s, unit)}
+          ${factsPanel()}
+          <p class="note">Live numbers above are a realistic desktop demo so you can see the layout. A webpage cannot read your real CPU or GPU sensors — use the workload chips to try idle, gaming, and worst-case heat. Black is normal, yellow is threshold, red is critical.</p>
+        </div>
+      `;
+    }
+
+    document.getElementById("app").addEventListener("click", (e) => {
+      const t = e.target.closest("[data-workload],[data-unit],[data-metric],[data-pause]");
+      if (!t) return;
+      if (t.dataset.workload) {
+        state.workload = t.dataset.workload;
+        const last = state.samples[state.samples.length - 1];
+        state.samples = [...state.samples, { ...last, t: Date.now() }].slice(-60);
+        render();
+      } else if (t.dataset.unit) {
+        setUnit(t.dataset.unit);
+      } else if (t.dataset.metric) {
+        state.selected = t.dataset.metric;
+        render();
+      } else if (t.hasAttribute("data-pause")) {
+        state.paused = !state.paused;
+        render();
+      }
+    });
+
+    async function probe() {
+      const nav = navigator;
+      let batteryPct = null, batteryCharging = null;
+      try {
+        if (nav.getBattery) {
+          const b = await nav.getBattery();
+          batteryPct = Math.round(b.level * 100);
+          batteryCharging = b.charging;
+        }
+      } catch (_) {}
+      const conn = nav.connection;
+      const mem = performance.memory;
+      state.facts = {
+        cores: nav.hardwareConcurrency || null,
+        deviceMemoryGb: nav.deviceMemory ?? null,
+        platform: platformLabel(),
+        gpu: gpuName(),
+        screen: window.screen.width + " × " + window.screen.height,
+        connection: conn && conn.effectiveType ? conn.effectiveType : null,
+        downlink: conn && conn.downlink != null ? conn.downlink : null,
+        batteryPct,
+        batteryCharging,
+        heapUsedMb: mem ? Math.round(mem.usedJSHeapSize / 1048576) : null,
+        heapLimitMb: mem ? Math.round(mem.jsHeapSizeLimit / 1048576) : null,
+      };
+      render();
+    }
+
+    render();
+    probe();
+    setInterval(() => {
+      if (state.paused) return;
+      const last = state.samples[state.samples.length - 1];
+      state.samples = [...state.samples, nextSample(last, state.workload)].slice(-60);
+      render();
+    }, 1000);
+  </script>
+</body>
+</html>
