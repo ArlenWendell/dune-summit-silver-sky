@@ -134,7 +134,14 @@
 
     const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
     const step = (cur, target, chase, jitter) => cur + (target - cur) * chase + (Math.random() - 0.5) * jitter;
-    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&", "<": "<", ">": ">", '"': """, "'": "&#39;" }[c]));
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, "&#38;")
+        .replace(/</g, "&#60;")
+        .replace(/>/g, "&#62;")
+        .replace(/"/g, "&#34;")
+        .replace(/'/g, "&#39;");
+    }
 
     function seed(w) { return { t: Date.now(), ...TARGETS[w] }; }
     function nextSample(prev, w) {
